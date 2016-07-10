@@ -10,7 +10,7 @@ describe('Graph functionality testing', function()
            local res = 3 * a + b + 5 * a -- + 10 * b
 
            it('evaluator works', function()
-                local val, cost = eval_node(res, { a = 10, b = 20 })
+                local val, cost = eval_graph(res, { a = 10, b = 20 })
                 assert.are.equal(100, val)
                 assert.are.equal(22, cost)
            end)
@@ -91,5 +91,28 @@ describe('Transform functionality', function()
                   T.apply_transform(site)
                   assert.are.same((Num(1) + Num(2)) + 3, g1)
            end)
+
+           test('overlapping assoc', function()
+                  local g0 = Num(1) + 2
+                  local g1 = g0 + 5
+                  local g2 = g0 * g1
+
+                  local trans1 = T.find_transform_sites(g2)
+
+                  local n = 0
+                  local site
+                  for _,v in ipairs(trans1) do
+                    if v.rule == 'assoc_l' then
+                      n = n+1
+                      site = v
+                    end
+                  end
+                  assert.is.equal(1, n)
+                  local v1 = eval_graph(g2)
+                  T.apply_transform(site)
+                  local v2 = eval_graph(g2)
+                  assert.are.equal(v1,v2)
+           end)
+
 
 end)

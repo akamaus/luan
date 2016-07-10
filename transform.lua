@@ -6,9 +6,18 @@ require 'dsl'
 
 local M = {}
 
+local function clone_table(t)
+  local nt = {}
+  for i,v in pairs(t) do
+    nt[i] = v
+  end
+  return nt
+end
+
 local function rotate_nodes(l, r)
   assert(l)
   assert(r)
+
   l.arg2, l.arg1, r.arg1, r.arg2 = r.arg2, l.arg2, l.arg1, r.arg1
 end
 
@@ -30,7 +39,9 @@ local TransformRules = {
       end
     end,
     apply = function(s)
-      rotate_nodes(s.n_l, s.n_r)
+      local nl = clone_table(s.n_l)
+      s.n_r.arg1 = nl
+      rotate_nodes(nl, s.n_r)
     end
   },
   assoc_r = {
@@ -40,7 +51,10 @@ local TransformRules = {
       end
     end,
     apply = function(s)
-      rotate_nodes(s.n_l, s.n_r)
+      local nr = clone_table(s.n_r)
+      s.n_l.arg2 = nr
+
+      rotate_nodes(s.n_l, nr)
     end
   }
 

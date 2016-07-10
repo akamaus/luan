@@ -145,7 +145,7 @@ function draw_graph(graph)
   os.remove(tmp)
 end
 
-function eval_node(node, env)
+function eval_graph(node, env)
   local val, cost
   if node.type == 'num' then
     val,cost = node.num, 0
@@ -154,8 +154,8 @@ function eval_node(node, env)
     cost = 0
   elseif node.type == 'bin_op' then
     local op = assert(OpTable[node.bin_op], 'unknown op')
-    local arg1,cost1 = eval_node(node.arg1, env)
-    local arg2,cost2 = eval_node(node.arg2, env)
+    local arg1,cost1 = eval_graph(node.arg1, env)
+    local arg2,cost2 = eval_graph(node.arg2, env)
 
     val = op.f(arg1, arg2)
     cost = op.cost + cost1 + cost2
