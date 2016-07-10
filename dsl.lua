@@ -2,8 +2,8 @@
 local strict = require "std.strict"
 local _ENV = strict (_G)
 
-local Plus = '+'
-local Mul = '*'
+Plus = '+'
+Mul = '*'
 local Lt = '<'
 
 local OpTable = {
@@ -134,6 +134,13 @@ function render_graph(graph, file)
 
    f:write("}")
    f:close()
+end
+
+function draw_graph(graph)
+  local tmp = os.tmpname("graph")
+  render_graph(graph, tmp)
+  os.execute('./render_graph.sh ' .. tmp)
+  os.remove(tmp)
 end
 
 function eval_node(node, env)
