@@ -73,7 +73,7 @@ function walk_graph(g, callback)
   local known = {}
 
   local function enqueue_if_new(n)
-    assert(type(n) == 'table')
+    assert(type(n) == 'table', 'strange node type' .. type(n))
     if known[n] then return end
     table.insert(unvisited, n)
     known[n] = true
@@ -83,8 +83,8 @@ function walk_graph(g, callback)
     local n = table.remove(unvisited)
     assert(type(n) == 'table' and n.type)
     if n.type == 'bin_op' then
-      enqueue_if_new(n.arg1)
       enqueue_if_new(n.arg2)
+      enqueue_if_new(n.arg1)
     end
     callback(n)
   until #unvisited == 0
@@ -125,8 +125,8 @@ function render_graph(graph, file)
 
    local function render_deps(n)
      if n.type ~= 'bin_op' then return end
-     f:write(string.format('  v%d -> v%d;\n', reify_node(n), reify_node(n.arg1)))
-     f:write(string.format('  v%d -> v%d;\n', reify_node(n), reify_node(n.arg2)))
+     f:write(string.format('  v%d -> v%d [label="arg2"];\n', reify_node(n), reify_node(n.arg2)))
+     f:write(string.format('  v%d -> v%d [label="arg1"];\n', reify_node(n), reify_node(n.arg1)))
    end
 
    walk_graph(graph, render_node)
