@@ -29,7 +29,7 @@ local node_mt = {
   end
 }
 
-local function Var(v)
+function Var(v)
   local o = {}
   o.var = v
   o.type = 'var'
@@ -37,7 +37,7 @@ local function Var(v)
   return o
 end
 
-local function Num(n)
+function Num(n)
   local o = {}
   o.num = n
   o.type = 'num'
@@ -68,7 +68,7 @@ end
 
 -- walking graph
 
-local function walk_graph(g, callback)
+function walk_graph(g, callback)
   local unvisited = { g }
   local known = {}
 
@@ -136,7 +136,7 @@ function render_graph(graph, file)
    f:close()
 end
 
-local function eval_node(node, env)
+function eval_node(node, env)
   local val, cost
   if node.type == 'num' then
     val,cost = node.num, 0
@@ -156,12 +156,5 @@ local function eval_node(node, env)
 
   return val, cost
 end
---testing
 
-a = Var 'a'
-b = Var 'b'
 
-res = 3 * a + b + 5 * a -- + 10 * b
-
-render_graph(res, 'tst.dot')
-print(eval_node(res, { a = 10, b = 20 }))
