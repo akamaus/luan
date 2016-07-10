@@ -6,6 +6,8 @@ Plus = '+'
 Mul = '*'
 local Lt = '<'
 
+AssocOps = { [Plus] = true, [Mul] = true }
+
 local OpTable = {
   [Plus] = { f = function(a,b) return a+b end,
              cost = 1

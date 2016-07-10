@@ -6,6 +6,12 @@ require 'dsl'
 
 local M = {}
 
+local function rotate_nodes(l, r)
+  assert(l)
+  assert(r)
+  l.arg2, l.arg1, r.arg1, r.arg2 = r.arg2, l.arg2, l.arg1, r.arg1
+end
+
 local TransformRules = {
   commutativity = {
     match = function(n)
@@ -19,16 +25,25 @@ local TransformRules = {
   },
   assoc_l = {
     match = function(n)
-      if n.type == 'bin_op' and n.bin_op == n.arg1.bin_op then
+      if n.type == 'bin_op' and AssocOps[n.bin_op] and n.bin_op == n.arg1.bin_op then
         return { n_l = n.arg1, n_r = n}
       end
     end,
     apply = function(s)
-      local l = assert(s.n_l)
-      local r = assert(s.n_r)
-      l.arg1, l.arg2, r.arg1, r.arg2 = l.arg2, r.arg2, l.arg1, l
+      rotate_nodes(s.n_l, s.n_r)
+    end
+  },
+  assoc_r = {
+    match = function(n)
+      if n.type == 'bin_op' and AssocOps[n.bin_op] and n.bin_op == n.arg2.bin_op then
+        return { n_l = n, n_r = n.arg2 }
+      end
+    end,
+    apply = function(s)
+      rotate_nodes(s.n_l, s.n_r)
     end
   }
+
 }
 
 function M.find_transform_sites(graph)

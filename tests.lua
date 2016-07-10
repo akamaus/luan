@@ -73,4 +73,23 @@ describe('Transform functionality', function()
                   T.apply_transform(site)
                   assert.are.same(Num(1) + (Num(2) + 3), g1)
            end)
+
+           test('detect assoc_r', function()
+                  local g1 = Num(1) + (Num(2) + 3)
+
+                  local trans1 = T.find_transform_sites(g1)
+
+                  local n = 0
+                  local site
+                  for _,v in ipairs(trans1) do
+                    if v.rule == 'assoc_r' then
+                      n = n+1
+                      site = v
+                    end
+                  end
+                  assert.is.equal(1, n)
+                  T.apply_transform(site)
+                  assert.are.same((Num(1) + Num(2)) + 3, g1)
+           end)
+
 end)
