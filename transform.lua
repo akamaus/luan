@@ -56,9 +56,22 @@ local TransformRules = {
 
       rotate_nodes(s.n_l, nr)
     end
+  },
+  distrib = {
+    match = function(n)
+      if n.type == 'bin_op' and and n.arg2.type = 'bin_op' then
+        for _,p = ipairs(DistrOpPairs) do
+          if p[1] == n.bin_op and p[2] == n.arg1.bin_op then
+            return n
+          end
+        end
+      end
+    end,
+    apply = function(n)
+      local op_out = n.bin_op
+      local op_in = n.arg1.bin_op
+      
   }
-
-}
 
 function M.find_transform_sites(graph)
   local sites = {}
