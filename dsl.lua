@@ -7,6 +7,7 @@ Mul = '*'
 local Lt = '<'
 
 AssocOps = { [Plus] = true, [Mul] = true }
+DistrOpPairs = { { Mul, Plus } }
 
 local OpTable = {
   [Plus] = { f = function(a,b) return a+b end,
@@ -17,7 +18,7 @@ local OpTable = {
           }
 }
 
-local BinOp
+BinOp = nil
 
 local node_mt = {
   __add = function(a,b)
