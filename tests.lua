@@ -36,15 +36,9 @@ describe('Transform / ', function()
                 assert.are.same({ { rule = 'commutativity', path = {}} }, trans2)
 
                 local g3 = g1 + g2
-                local trans3 = T.find_transform_sites(g3)
+                local trans3 = T.find_transform_sites(g3, 'commutativity')
 
-                local n = 0
-                for _,v in ipairs(trans3) do
-                  if v.rule == 'commutativity' then
-                    n = n+1
-                  end
-                end
-                assert.is.equal(3,n, 'three sites')
+                assert.is.equal(3,#trans3, 'three sites')
            end)
 
            test('apply commutativity', function()
@@ -70,36 +64,21 @@ describe('Transform / ', function()
            test('detect assoc_l', function()
                   local g1 = Num(1) + 2 + 3
 
-                  local trans1 = T.find_transform_sites(g1)
+                  local trans1 = T.find_transform_sites(g1, 'assoc_l')
 
                   local n = 0
-                  local site
-                  for _,v in ipairs(trans1) do
-                    if v.rule == 'assoc_l' then
-                      n = n+1
-                      site = v
-                    end
-                  end
-                  assert.is.equal(1, n)
-                  T.apply_transform(g1, site)
+                  assert.is.equal(1, #trans1)
+                  T.apply_transform(g1, trans1[1])
                   assert.are.same(Num(1) + (Num(2) + 3), g1)
            end)
 
            test('detect assoc_r', function()
                   local g1 = Num(1) + (Num(2) + 3)
 
-                  local trans1 = T.find_transform_sites(g1)
+                  local trans1 = T.find_transform_sites(g1, 'assoc_r')
 
-                  local n = 0
-                  local site
-                  for _,v in ipairs(trans1) do
-                    if v.rule == 'assoc_r' then
-                      n = n+1
-                      site = v
-                    end
-                  end
-                  assert.is.equal(1, n)
-                  T.apply_transform(g1, site)
+                  assert.is.equal(1, #trans1)
+                  T.apply_transform(g1, trans1[1])
                   assert.are.same((Num(1) + Num(2)) + 3, g1)
            end)
 
@@ -108,19 +87,11 @@ describe('Transform / ', function()
                   local g1 = g0 + 5
                   local g2 = g0 * g1
 
-                  local trans1 = T.find_transform_sites(g2)
+                  local trans1 = T.find_transform_sites(g2, 'assoc_l')
 
-                  local n = 0
-                  local site
-                  for _,v in ipairs(trans1) do
-                    if v.rule == 'assoc_l' then
-                      n = n+1
-                      site = v
-                    end
-                  end
-                  assert.is.equal(1, n)
+                  assert.is.equal(1, #trans1)
                   local v1 = eval_graph(g2)
-                  T.apply_transform(g2, site)
+                  T.apply_transform(g2, trans1[1])
                   local v2 = eval_graph(g2)
                   assert.are.equal(v1,v2)
            end)
