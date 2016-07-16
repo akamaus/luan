@@ -30,10 +30,10 @@ describe('Transform / ', function()
                 local g2 = Num(2) * Var('a')
 
                 local trans1 = T.find_transform_sites(g1, 'commutativity')
-                assert.are.same({ { rule = 'commutativity', place = g1, path = {}},  }, trans1)
+                assert.are.same({ { rule = 'commutativity', path = {}},  }, trans1)
 
                 local trans2 = T.find_transform_sites(g2, 'commutativity')
-                assert.are.same({ { rule = 'commutativity', place = g2, path = {}} }, trans2)
+                assert.are.same({ { rule = 'commutativity', path = {}} }, trans2)
 
                 local g3 = g1 + g2
                 local trans3 = T.find_transform_sites(g3)
@@ -51,7 +51,7 @@ describe('Transform / ', function()
                   local g1 = Num(1) + Num(2)
 
                   local trans = T.find_transform_sites(g1)[1]
-                  T.apply_transform(trans)
+                  T.apply_transform(g1, trans)
                   assert.are.same(Num(2) + 1, g1)
 
            end)
@@ -61,9 +61,9 @@ describe('Transform / ', function()
                   local g2 = Num(3) + Num(4)
 
                   local trans = T.find_transform_sites(g1)[1]
-                  T.apply_transform(trans)
+                  T.apply_transform(g1, trans)
                   assert.are.same(Num(2) + 1, g1)
-                  T.apply_transform(trans, g2)
+                  T.apply_transform(g2, trans)
                   assert.are.same(Num(4) + 3, g2)
            end)
 
@@ -81,7 +81,7 @@ describe('Transform / ', function()
                     end
                   end
                   assert.is.equal(1, n)
-                  T.apply_transform(site)
+                  T.apply_transform(g1, site)
                   assert.are.same(Num(1) + (Num(2) + 3), g1)
            end)
 
@@ -99,7 +99,7 @@ describe('Transform / ', function()
                     end
                   end
                   assert.is.equal(1, n)
-                  T.apply_transform(site)
+                  T.apply_transform(g1, site)
                   assert.are.same((Num(1) + Num(2)) + 3, g1)
            end)
 
@@ -120,7 +120,7 @@ describe('Transform / ', function()
                   end
                   assert.is.equal(1, n)
                   local v1 = eval_graph(g2)
-                  T.apply_transform(site)
+                  T.apply_transform(g2, site)
                   local v2 = eval_graph(g2)
                   assert.are.equal(v1,v2)
            end)
@@ -131,7 +131,7 @@ describe('Transform / ', function()
                   assert.True(type(dist_site) == 'table')
                   assert.is.equal(1, #dist_site)
 
-                  T.apply_transform(dist_site[1])
+                  T.apply_transform(g, dist_site[1])
                   assert.are.same(Num(2) * 3 + Num(2)*4, g)
            end)
 
@@ -142,7 +142,7 @@ describe('Transform / ', function()
                   assert.True(type(dist_site) == 'table')
                   assert.is.equal(1, #dist_site)
 
-                  T.apply_transform(dist_site[1])
+                  T.apply_transform(g2, dist_site[1])
                   assert.are.same(g1, g2)
            end)
 end)

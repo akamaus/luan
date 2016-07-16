@@ -29,7 +29,7 @@ local TransformRules = {
   commutativity = {
     match = function(n)
       if n.bin_op == Plus or n.bin_op == Mul then
-        return n
+        return true
       end
     end,
     apply = function(n)
@@ -39,26 +39,30 @@ local TransformRules = {
   assoc_l = {
     match = function(n)
       if n.type == 'bin_op' and AssocOps[n.bin_op] and n.bin_op == n.arg1.bin_op then
-        return { n_l = n.arg1, n_r = n}
+        return true
       end
     end,
-    apply = function(s)
-      local nl = clone_table(s.n_l)
-      s.n_r.arg1 = nl
-      rotate_nodes(nl, s.n_r)
+    apply = function(n)
+      local n_l = n.arg1
+      local n_r = n
+      local nl = clone_table(n_l)
+      n_r.arg1 = nl
+      rotate_nodes(nl, n_r)
     end
   },
   assoc_r = {
     match = function(n)
       if n.type == 'bin_op' and AssocOps[n.bin_op] and n.bin_op == n.arg2.bin_op then
-        return { n_l = n, n_r = n.arg2 }
+        return true
       end
     end,
-    apply = function(s)
-      local nr = clone_table(s.n_r)
-      s.n_l.arg2 = nr
+    apply = function(n)
+      local n_l = n
+      local n_r = n.arg2
+      local nr = clone_table(n_r)
+      n_l.arg2 = nr
 
-      rotate_nodes(s.n_l, nr)
+      rotate_nodes(n_l, nr)
     end
   },
   distrib = {
@@ -66,7 +70,7 @@ local TransformRules = {
       if n.type == 'bin_op' and n.arg2.type == 'bin_op' then
         for _,p in ipairs(DistrOpPairs) do
           if p[1] == n.bin_op and p[2] == n.arg2.bin_op then
-            return n
+            return true
           end
         end
       end
@@ -86,7 +90,7 @@ local TransformRules = {
       if n.type == 'bin_op' and n.arg1.type == 'bin_op' and n.arg2.type == 'bin_op' then
         for _,p in ipairs(DistrOpPairs) do
           if p[2] == n.bin_op and p[1] == n.arg1.bin_op and p[1] == n.arg2.bin_op and cmp_nodes(n.arg1.arg1, n.arg2.arg1) then
-            return n
+            return true
           end
         end
       end
@@ -107,9 +111,8 @@ function M.find_transform_sites(graph, rule_name)
 
   local function try_rule(rule_name, node, path)
     local rule = assert(TransformRules[rule_name], 'unknown rule' .. rule_name)
-    local m = rule.match(node)
-    if m then
-      table.insert(sites, { rule = rule_name, place = m, path = path})
+    if rule.match(node) then
+      table.insert(sites, { rule = rule_name, path = path})
     end
   end
 
@@ -128,15 +131,12 @@ function M.find_transform_sites(graph, rule_name)
   return sites
 end
 
-function M.apply_transform(site, graph)
-  local place
+function M.apply_transform(graph, site)
+  assert(graph.type)
+  assert(type(site.path) == 'table')
   local r = assert(TransformRules[site.rule], 'rule not found')
-  if graph then
-    local g = walk_path(graph, site.path)
-    r.apply(g)
-  else
-    r.apply(site.place)
-  end
+  local g = walk_path(graph, site.path)
+  r.apply(g)
 end
 
 return M
