@@ -1,3 +1,7 @@
+-- For use of the global environment from this scope.
+local strict = require "std.strict"
+local _ENV = strict (_G)
+
 -- walking graph
 
 local D = require 'dsl'

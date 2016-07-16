@@ -131,3 +131,29 @@ describe('Transform / ', function()
                   assert.are.same(g1, g2)
            end)
 end)
+
+describe('Breeder / ', function()
+           local B = require 'breeder'
+
+           function test_vars(g, all_vars)
+             local v = G.eval_graph(g)
+             for _,g2 in ipairs(all_vars) do
+               print(g2)
+               assert.is_equal(v, G.eval_graph(g2))
+             end
+           end
+
+           test('breeder small', function()
+                  local g = Num(1) + 2 + 3
+                  local all_vars = B.enum_breadth_first(g)
+                  assert.is.equal(12, #all_vars)
+                  test_vars(g, all_vars)
+
+                  local g1 = Num(100) + 200
+                  local g2 = g1 * g1
+                  local vars2 = B.enum_breadth_first(g2)
+                  assert.is.equal(562, #vars2)
+                  test_vars(g2, vars2)
+
+           end)
+end)

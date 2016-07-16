@@ -33,6 +33,14 @@ local node_mt = {
   end,
   __lt = function(a,b)
     return BinOp(Lt, a,b)
+  end,
+  __tostring = function(n)
+    if n.type == 'bin_op' then
+      return tostring( '(' .. tostring(n.arg1) .. n.bin_op .. tostring(n.arg2) .. ')')
+    elseif n.type == 'num' then return tostring(n.num)
+    elseif n.type == 'var' then return tostring(n.var)
+    else error "cant print"
+    end
   end
 }
 
