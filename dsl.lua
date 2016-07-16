@@ -2,6 +2,8 @@
 local strict = require "std.strict"
 local _ENV = strict (_G)
 
+require 'utils'
+
 Plus = '+'
 Mul = '*'
 local Lt = '<'
@@ -71,25 +73,42 @@ end
 
 -- walking graph
 
+function walk_path(g, path)
+  for _,d in ipairs(path) do
+    if d == 'L' then
+      g = g.arg1
+    elseif d == 'R' then
+      g = g.arg2
+    else error "strange path"
+    end
+  end
+  return g
+end
+
 function walk_graph(g, callback)
-  local unvisited = { g }
+  local unvisited = { { node = g, path = {} } }
   local known = {}
 
-  local function enqueue_if_new(n)
+  local function enqueue_if_new(n, path)
     assert(type(n) == 'table', 'strange node type' .. type(n))
     if known[n] then return end
-    table.insert(unvisited, n)
+    table.insert(unvisited, { node = n, path = path } )
     known[n] = true
   end
 
   repeat
     local n = table.remove(unvisited)
-    assert(type(n) == 'table' and n.type)
-    if n.type == 'bin_op' then
-      enqueue_if_new(n.arg2)
-      enqueue_if_new(n.arg1)
+    local node = n.node
+    assert(type(n) == 'table' and n.node and n.node.type)
+    if node.type == 'bin_op' then
+      local path_r = clone_table(n.path)
+      table.insert(path_r,'R')
+      enqueue_if_new(node.arg2, path_r)
+      local path_l = clone_table(n.path)
+      table.insert(path_l,'L')
+      enqueue_if_new(node.arg1, path_l)
     end
-    callback(n)
+    callback(n.node, n.path)
   until #unvisited == 0
 end
 

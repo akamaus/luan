@@ -6,14 +6,6 @@ require 'dsl'
 
 local M = {}
 
-local function clone_table(t)
-  local nt = {}
-  for i,v in pairs(t) do
-    nt[i] = v
-  end
-  return nt
-end
-
 local function cmp_nodes(t1,t2)
   assert(t1.type)
   assert(t2.type)
@@ -113,20 +105,20 @@ local TransformRules = {
 function M.find_transform_sites(graph, rule_name)
   local sites = {}
 
-  local function try_rule(rule_name, node)
+  local function try_rule(rule_name, node, path)
     local rule = assert(TransformRules[rule_name], 'unknown rule' .. rule_name)
     local m = rule.match(node)
     if m then
-      table.insert(sites, { rule = rule_name, place = m})
+      table.insert(sites, { rule = rule_name, place = m, path = path})
     end
   end
 
-  local function detect_possibility(node)
+  local function detect_possibility(node, path)
     if rule_name then -- try specific rule only
-      try_rule(rule_name, node)
+      try_rule(rule_name, node, path)
     else -- no candidate given, try all
       for name, _ in pairs(TransformRules) do
-        try_rule(name,node)
+        try_rule(name,node,path)
       end
     end
   end
@@ -136,9 +128,15 @@ function M.find_transform_sites(graph, rule_name)
   return sites
 end
 
-function M.apply_transform(site)
+function M.apply_transform(site, graph)
+  local place
   local r = assert(TransformRules[site.rule], 'rule not found')
-  r.apply(site.place)
+  if graph then
+    local g = walk_path(graph, site.path)
+    r.apply(g)
+  else
+    r.apply(site.place)
+  end
 end
 
 return M
