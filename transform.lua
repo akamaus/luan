@@ -14,6 +14,18 @@ local function clone_table(t)
   return nt
 end
 
+local function cmp_nodes(t1,t2)
+  assert(t1.type)
+  assert(t2.type)
+  if t1.type ~= t2.type then return false end
+
+  if t1.type == 'num' then return t1.num == t2.num
+  elseif t1.type == 'var' then return t1.var == t2.var
+  elseif t1.type == 'bin_op' then return t1.bin_op == t2.bin_op and cmp_nodes(t1.arg1, t2.arg1) and cmp_nodes(t1.arg2, t2.arg2)
+  else error "cant compare"
+  end
+end
+
 local function rotate_nodes(l, r)
   assert(l)
   assert(r)
@@ -75,6 +87,25 @@ local TransformRules = {
       n.bin_op = op_in
       n.arg1 = o1
       n.arg2 = o2
+    end
+  },
+  factor = {
+    match = function(n)
+      if n.type == 'bin_op' and n.arg1.type == 'bin_op' and n.arg2.type == 'bin_op' then
+        for _,p in ipairs(DistrOpPairs) do
+          if p[2] == n.bin_op and p[1] == n.arg1.bin_op and p[1] == n.arg2.bin_op and cmp_nodes(n.arg1.arg1, n.arg2.arg1) then
+            return n
+          end
+        end
+      end
+    end,
+    apply = function(n)
+      local op_out = n.bin_op
+      local op_in = n.arg1.bin_op
+      local o = BinOp(op_out, n.arg1.arg2, n.arg2.arg2)
+      n.bin_op = op_in
+      n.arg1 = n.arg1.arg1
+      n.arg2 = o
     end
   }
 }

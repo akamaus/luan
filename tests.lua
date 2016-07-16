@@ -22,7 +22,7 @@ describe('Graph functionality testing', function()
            end)
 end)
 
-describe('Transform functionality', function()
+describe('Transform / ', function()
           T = require 'transform'
 
            it('should detect commutativity', function()
@@ -121,7 +121,17 @@ describe('Transform functionality', function()
                   assert.is.equal(1, #dist_site)
 
                   T.apply_transform(dist_site[1])
-                  draw_graph(g)
                   assert.are.same(Num(2) * 3 + Num(2)*4, g)
+           end)
+
+           test('factorize', function()
+                  local g1 = Num(2) * (Num(3) + 4)
+                  local g2 = Num(2) * 3 + Num(2)*4
+                  local dist_site = T.find_transform_sites(g2,'factor')
+                  assert.True(type(dist_site) == 'table')
+                  assert.is.equal(1, #dist_site)
+
+                  T.apply_transform(dist_site[1])
+                  assert.are.same(g1, g2)
            end)
 end)
