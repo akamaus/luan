@@ -2,21 +2,10 @@ local strict = require "std.strict"
 local _ENV = strict (_G)
 
 package.path=package.path .. ';?.lua'
-require 'dsl'
+local D = require 'dsl'
+local G = require 'graph_utils'
 
 local M = {}
-
-local function cmp_nodes(t1,t2)
-  assert(t1.type)
-  assert(t2.type)
-  if t1.type ~= t2.type then return false end
-
-  if t1.type == 'num' then return t1.num == t2.num
-  elseif t1.type == 'var' then return t1.var == t2.var
-  elseif t1.type == 'bin_op' then return t1.bin_op == t2.bin_op and cmp_nodes(t1.arg1, t2.arg1) and cmp_nodes(t1.arg2, t2.arg2)
-  else error "cant compare"
-  end
-end
 
 local function rotate_nodes(l, r)
   assert(l)
@@ -38,7 +27,7 @@ local TransformRules = {
   },
   assoc_l = {
     match = function(n)
-      if n.type == 'bin_op' and AssocOps[n.bin_op] and n.bin_op == n.arg1.bin_op then
+      if n.type == 'bin_op' and D.AssocOps[n.bin_op] and n.bin_op == n.arg1.bin_op then
         return true
       end
     end,
@@ -52,7 +41,7 @@ local TransformRules = {
   },
   assoc_r = {
     match = function(n)
-      if n.type == 'bin_op' and AssocOps[n.bin_op] and n.bin_op == n.arg2.bin_op then
+      if n.type == 'bin_op' and D.AssocOps[n.bin_op] and n.bin_op == n.arg2.bin_op then
         return true
       end
     end,
@@ -68,7 +57,7 @@ local TransformRules = {
   distrib = {
     match = function(n)
       if n.type == 'bin_op' and n.arg2.type == 'bin_op' then
-        for _,p in ipairs(DistrOpPairs) do
+        for _,p in ipairs(D.DistrOpPairs) do
           if p[1] == n.bin_op and p[2] == n.arg2.bin_op then
             return true
           end
@@ -88,8 +77,8 @@ local TransformRules = {
   factor = {
     match = function(n)
       if n.type == 'bin_op' and n.arg1.type == 'bin_op' and n.arg2.type == 'bin_op' then
-        for _,p in ipairs(DistrOpPairs) do
-          if p[2] == n.bin_op and p[1] == n.arg1.bin_op and p[1] == n.arg2.bin_op and cmp_nodes(n.arg1.arg1, n.arg2.arg1) then
+        for _,p in ipairs(D.DistrOpPairs) do
+          if p[2] == n.bin_op and p[1] == n.arg1.bin_op and p[1] == n.arg2.bin_op and G.cmp_nodes(n.arg1.arg1, n.arg2.arg1) then
             return true
           end
         end
@@ -126,7 +115,7 @@ function M.find_transform_sites(graph, rule_name)
     end
   end
 
-  walk_graph(graph, detect_possibility)
+  G.walk_graph(graph, detect_possibility)
 
   return sites
 end
@@ -135,7 +124,7 @@ function M.apply_transform(graph, site)
   assert(graph.type)
   assert(type(site.path) == 'table')
   local r = assert(TransformRules[site.rule], 'rule not found')
-  local g = walk_path(graph, site.path)
+  local g = G.walk_path(graph, site.path)
   r.apply(g)
 end
 

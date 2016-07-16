@@ -3,22 +3,36 @@ require 'busted.runner'()
 package.path=package.path .. ';?.lua'
 require 'dsl'
 
+local G = require 'graph_utils'
+
 describe('Graph functionality testing', function()
            local a = Var 'a'
            local b = Var 'b'
 
            local res = 3 * a + b + 5 * a -- + 10 * b
 
-           it('evaluator works', function()
-                local val, cost = eval_graph(res, { a = 10, b = 20 })
+           test('cloning', function()
+                  local g1 = Num(1) + 2
+                  local g2 = G.clone_graph(g1)
+                  assert.True(G.cmp_nodes(g1,g2))
+                  assert.True(g1 ~= g2)
+                  assert.True(g1.arg1 ~= g2.arg1)
+                  assert.True(g1.arg2 ~= g2.arg2)
+           end)
+
+           test('evaluator works', function()
+                local val, cost = G.eval_graph(res, { a = 10, b = 20 })
                 assert.are.equal(100, val)
                 assert.are.equal(22, cost)
            end)
-           it('should render something', function()
+           test('should render something', function()
                 local dot_name = '/tmp/g.dot'
-                render_graph(res, dot_name)
+                G.render_graph(res, dot_name)
                 local res = os.remove(dot_name)
                 assert.True(res, 'dot should be created')
+           end)
+           test('printing works', function()
+                  assert.is.equal("((a+b)+1)", tostring(a + b + 1))
            end)
 end)
 
@@ -90,9 +104,9 @@ describe('Transform / ', function()
                   local trans1 = T.find_transform_sites(g2, 'assoc_l')
 
                   assert.is.equal(1, #trans1)
-                  local v1 = eval_graph(g2)
+                  local v1 = G.eval_graph(g2)
                   T.apply_transform(g2, trans1[1])
-                  local v2 = eval_graph(g2)
+                  local v2 = G.eval_graph(g2)
                   assert.are.equal(v1,v2)
            end)
 
