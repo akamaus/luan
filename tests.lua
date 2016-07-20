@@ -157,3 +157,18 @@ describe('Breeder / ', function()
 
            end)
 end)
+
+describe('Various /', function()
+          test('merge', function()
+                 local g1 = Num(1) + 2
+                 local g2 = Num(2) + 1
+                 local g3 = g1 * g2
+--                 G.draw_graph(g3)
+
+                 local sites = T.find_transform_sites(g2, 'commutativity')
+                 assert.is.equal(1, #sites)
+                 print("TRANS")
+                 T.apply_transform(g2, sites[1])
+                 G.draw_graph(g3)
+          end)
+end)

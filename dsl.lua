@@ -60,7 +60,7 @@ function M.cmp_nodes(t1,t2)
 end
 
 -- node deduplication
-local function reify_node(n)
+function M.reify_node(n)
   local n_str = tostring(n)
   local sn = M.NodeSea[n_str]
   local res
@@ -87,7 +87,7 @@ function Var(v)
   o.var = v
   o.type = 'var'
   setmetatable(o, node_mt)
-  return reify_node(o)
+  return M.reify_node(o)
 end
 
 function Num(n)
@@ -95,7 +95,7 @@ function Num(n)
   o.num = n
   o.type = 'num'
   setmetatable(o, node_mt)
-  return reify_node(o)
+  return M.reify_node(o)
 end
 
 local function wrapNode(x)
@@ -115,7 +115,7 @@ BinOp = function(op, a,b)
   o.arg2 = wrapNode(b)
   o.type = 'bin_op'
   setmetatable(o, node_mt)
-  return reify_node(o)
+  return M.reify_node(o)
 end
 
 return M

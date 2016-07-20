@@ -126,6 +126,29 @@ function M.apply_transform(graph, site)
   local r = assert(TransformRules[site.rule], 'rule not found')
   local g = G.walk_path(graph, site.path)
   r.apply(g)
+  M.reify_graph(g)
+end
+
+function M.reify_graph(graph)
+  local function merge_node(n)
+    print("RG " .. tostring(n))
+
+    if n.type == 'bin_op' then
+      local ra1 = D.reify_node(n.arg1)
+      if n.arg1 ~= ra1 then
+        print("a1/r", n.arg1, ra1)
+      end
+      n.arg1 = ra1
+
+      local ra2 = D.reify_node(n.arg2)
+      if n.arg2 ~= ra2 then
+        print("a2/r", n.arg1, ra1)
+      end
+      n.arg2 = ra2
+    end
+  end
+
+  G.walk_graph(graph, merge_node)
 end
 
 return M
