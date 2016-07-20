@@ -1,8 +1,8 @@
 require 'busted.runner'()
 
 package.path=package.path .. ';?.lua'
-require 'dsl'
 
+local D = require 'dsl'
 local G = require 'graph_utils'
 
 describe('Graph functionality testing', function()
@@ -14,7 +14,7 @@ describe('Graph functionality testing', function()
            test('cloning', function()
                   local g1 = Num(1) + 2
                   local g2 = G.clone_graph(g1)
-                  assert.True(G.cmp_nodes(g1,g2))
+                  assert.True(D.cmp_nodes(g1,g2))
                   assert.True(g1 ~= g2)
                   assert.True(g1.arg1 ~= g2.arg1)
                   assert.True(g1.arg2 ~= g2.arg2)

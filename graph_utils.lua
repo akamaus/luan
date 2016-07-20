@@ -29,18 +29,6 @@ function M.clone_graph(g)
   return assert(nodes[g])
 end
 
-function M.cmp_nodes(t1,t2)
-  assert(t1.type)
-  assert(t2.type)
-  if t1.type ~= t2.type then return false end
-
-  if t1.type == 'num' then return t1.num == t2.num
-  elseif t1.type == 'var' then return t1.var == t2.var
-  elseif t1.type == 'bin_op' then return t1.bin_op == t2.bin_op and M.cmp_nodes(t1.arg1, t2.arg1) and M.cmp_nodes(t1.arg2, t2.arg2)
-  else error "cant compare"
-  end
-end
-
 function M.walk_path(g, path)
   for _,d in ipairs(path) do
     if d == 'L' then
@@ -128,7 +116,7 @@ end
 
 function M.draw_graph(graph)
   local tmp = os.tmpname("graph")
-  render_graph(graph, tmp)
+  M.render_graph(graph, tmp)
   os.execute('./render_graph.sh ' .. tmp)
   os.remove(tmp)
 end

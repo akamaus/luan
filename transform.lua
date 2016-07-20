@@ -78,7 +78,7 @@ local TransformRules = {
     match = function(n)
       if n.type == 'bin_op' and n.arg1.type == 'bin_op' and n.arg2.type == 'bin_op' then
         for _,p in ipairs(D.DistrOpPairs) do
-          if p[2] == n.bin_op and p[1] == n.arg1.bin_op and p[1] == n.arg2.bin_op and G.cmp_nodes(n.arg1.arg1, n.arg2.arg1) then
+          if p[2] == n.bin_op and p[1] == n.arg1.bin_op and p[1] == n.arg2.bin_op and D.cmp_nodes(n.arg1.arg1, n.arg2.arg1) then
             return true
           end
         end
