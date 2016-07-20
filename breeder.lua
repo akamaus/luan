@@ -14,20 +14,29 @@ function B.enum_breadth_first(graph)
   local front = { graph }
   local new_front = {}
 
-  while #front > 0 do
-    local g = table.remove(front)
-    local sites = T.find_transform_sites(g)
-    for _,trans in ipairs(sites) do
-      local g2 = G.clone_graph(g)
-      T.apply_transform(g2, trans)
-      local g_str = tostring(g2)
-      if not seen_graphs[g_str] then
-        table.insert(new_front, g2)
-        seen_graphs[g_str] = g2
+  local walked = 0
+  local breeded = 0
+  repeat
+    walked = walked + #front
+    print("front", #front)
+    while #front > 0 do
+      local g = table.remove(front)
+      local sites = T.find_transform_sites(g)
+      for _,trans in ipairs(sites) do
+        breeded = breeded + 1
+        local g2 = G.clone_graph(g)
+        T.apply_transform(g2, trans)
+        local g_str = tostring(g2)
+        if not seen_graphs[g_str] then
+          table.insert(new_front, g2)
+          seen_graphs[g_str] = g2
+        end
       end
     end
     front,new_front = new_front,front
-  end
+  until #front == 0
+
+  print('num fronts', walked, breeded)
 
   local ret_graphs = {}
   for s,g in pairs(seen_graphs) do

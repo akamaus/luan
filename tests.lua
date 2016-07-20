@@ -152,7 +152,7 @@ describe('Breeder / ', function()
                   local g1 = Num(100) + 200
                   local g2 = g1 * g1
                   local vars2 = B.enum_breadth_first(g2)
-                  assert.is.equal(562, #vars2)
+                  assert.is.equal(564, #vars2)
                   test_vars(g2, vars2)
 
            end)
