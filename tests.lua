@@ -5,6 +5,29 @@ require 'dsl'
 
 local G = require 'graph_utils'
 
+describe('DSL', function()
+  test('nodes of proper types created', function()
+         local g = Var 'a' + 1
+         assert.is.equal('bin_op', g.type)
+         assert.is.equal('var', g.arg1.type)
+         assert.is.equal('num', g.arg2.type)
+  end)
+
+  test('reification works', function()
+         local g1 = Var 'a' + 1
+         local g2 = Var 'a' + 2
+         local g3 = Var 'a' + 1
+         local g4 = 1 + Var 'a'
+
+         assert.are.equal(g1.id, g3.id)
+         assert.are.equal(g1, g3)
+         assert.are.equal(g1.arg1, g2.arg1)
+
+         assert.are.equal(g1.arg1, g4.arg2)
+         assert.are.equal(g1.arg2, g4.arg1)
+  end)
+end)
+
 describe('Graph functionality testing', function()
            local a = Var 'a'
            local b = Var 'b'

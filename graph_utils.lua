@@ -128,7 +128,7 @@ end
 
 function M.draw_graph(graph)
   local tmp = os.tmpname("graph")
-  render_graph(graph, tmp)
+  M.render_graph(graph, tmp)
   os.execute('./render_graph.sh ' .. tmp)
   os.remove(tmp)
 end

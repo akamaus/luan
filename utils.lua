@@ -6,3 +6,11 @@ function clone_table(t)
   setmetatable(nt, getmetatable(t))
   return nt
 end
+
+function print_table(t)
+  print('{')
+  for i,v in pairs(t) do
+    print(i,v)
+  end
+  print('}')
+end

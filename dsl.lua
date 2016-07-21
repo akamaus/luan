@@ -44,12 +44,45 @@ local node_mt = {
   end
 }
 
+-- This is global node storage
+local FreshId = 1
+M.NodeSea = {}
+
+local function tostring_shallow(n)
+  if n.type == 'bin_op' then
+    return string.format('(%d %s %d)', n.arg1.id, n.bin_op, n.arg2.id)
+  elseif n.type == 'num' then return tostring(n.num)
+  elseif n.type == 'var' then return n.var
+  else error "cant print"
+  end
+end
+
+-- node deduplication
+local function reify_node(n)
+  local n_str = tostring_shallow(n)
+  local sn = M.NodeSea[n_str]
+  local res
+  if sn then
+    print("found " .. n_str)
+    print_table(sn)
+      res = sn
+  else
+    print("new " .. n_str, "id", FreshId)
+    n.id = FreshId
+    FreshId = FreshId + 1
+    M.NodeSea[n_str] = n
+    res = n
+  end
+  return res
+end
+
+-- DSL primitives
 function Var(v)
   local o = {}
   o.var = v
   o.type = 'var'
   setmetatable(o, node_mt)
-  return o
+  return reify_node(o)
 end
 
 function Num(n)
@@ -57,7 +90,7 @@ function Num(n)
   o.num = n
   o.type = 'num'
   setmetatable(o, node_mt)
-  return o
+  return reify_node(o)
 end
 
 local function wrapNode(x)
@@ -70,7 +103,6 @@ local function wrapNode(x)
   end
 end
 
-
 BinOp = function(op, a,b)
   local o = {}
   o.bin_op = op
@@ -78,7 +110,7 @@ BinOp = function(op, a,b)
   o.arg2 = wrapNode(b)
   o.type = 'bin_op'
   setmetatable(o, node_mt)
-  return o
+  return reify_node(o)
 end
 
 return M
