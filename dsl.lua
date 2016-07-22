@@ -47,6 +47,10 @@ local node_mt = {
 -- This is global node storage
 local NodeSea = {}
 
+function M.get_node_sea()
+  return NodeSea
+end
+
 local function tostring_shallow(n)
   if n.type == 'bin_op' then
     return string.format('(%d %s %d)', n.arg1.id, n.bin_op, n.arg2.id)

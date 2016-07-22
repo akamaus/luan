@@ -6,6 +6,7 @@ T = require 'transform'
 G = require 'graph_utils'
 
 require 'utils'
+local D = require 'dsl'
 
 local B = {}
 
@@ -18,7 +19,7 @@ function B.enum_breadth_first(graph)
   local breeded = 0
   repeat
     walked = walked + #front
-    print("front", #front)
+    print("front", #front, 'nodes:', #D.get_node_sea())
     while #front > 0 do
       local g = table.remove(front)
       local sites = T.find_transform_sites(g)

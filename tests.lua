@@ -1,7 +1,7 @@
 require 'busted.runner'()
 
 package.path=package.path .. ';?.lua'
-require 'dsl'
+local D = require 'dsl'
 
 local G = require 'graph_utils'
 
