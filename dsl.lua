@@ -45,8 +45,7 @@ local node_mt = {
 }
 
 -- This is global node storage
-local FreshId = 1
-M.NodeSea = {}
+local NodeSea = {}
 
 local function tostring_shallow(n)
   if n.type == 'bin_op' then
@@ -57,23 +56,28 @@ local function tostring_shallow(n)
   end
 end
 
+local function shallow_cmp_nodes(t1,t2)
+  assert(t1.type)
+  assert(t2.type)
+  if t1.type ~= t2.type then return false end
+
+  if t1.type == 'num' then return t1.num == t2.num
+  elseif t1.type == 'var' then return t1.var == t2.var
+  elseif t1.type == 'bin_op' then return t1.bin_op == t2.bin_op and t1.arg1 == t2.arg1 and t1.arg2 == t2.arg2
+  else error "cant compare"
+  end
+end
+
 -- node deduplication
 local function reify_node(n)
-  local n_str = tostring_shallow(n)
-  local sn = M.NodeSea[n_str]
-  local res
-  if sn then
-    print("found " .. n_str)
-    print_table(sn)
-      res = sn
-  else
-    print("new " .. n_str, "id", FreshId)
-    n.id = FreshId
-    FreshId = FreshId + 1
-    M.NodeSea[n_str] = n
-    res = n
+  for i,sn in ipairs(NodeSea) do
+    if shallow_cmp_nodes(n, sn) then
+      return sn
+    end
   end
-  return res
+
+  table.insert(NodeSea, n)
+  return n
 end
 
 -- DSL primitives
